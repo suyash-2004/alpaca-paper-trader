@@ -1,0 +1,48 @@
+{
+  "order_submission_enabled": false,
+
+  "capital_usd": null,
+  "max_loss_per_trade_usd": null,
+  "max_daily_loss_usd": null,
+  "max_open_positions": null,
+  "max_order_notional_usd": null,
+  "max_account_exposure_usd": null,
+  "universe": null,
+
+  "strategy": {
+    "or_minutes": 15,
+    "target_r": 1.0,
+    "min_price": 5.0,
+    "entry_before": "15:30",
+    "flat_by": "15:55",
+    "max_extension_pct": 1.0,
+    "min_risk_pct": 0.2,
+    "max_risk_pct": 3.0,
+    "limit_slippage_bps": 10,
+    "max_spread_bps": 15
+  },
+  "costs": {
+    "half_spread_bps": 3.0,
+    "slippage_bps": 2.0,
+    "stop_slippage_bps": 10.0,
+    "sec_fee_per_million": 27.80,
+    "taf_per_share": 0.000166,
+    "taf_max": 8.30,
+    "partial_fill_prob": 0.10,
+    "partial_fill_min": 0.10,
+    "partial_fill_max": 0.90,
+    "reject_prob": 0.01
+  },
+  "data": {"max_bar_age_sec": 150, "max_quote_age_sec": 60, "failures_before_halt": 3},
+  "execution": {"poll_sec": 10, "entry_timeout_sec": 120, "settlement_days": 1},
+  "evaluation": {
+    "data_start": null,
+    "dev_end": null,
+    "walk_forward_end": null,
+    "holdout_end": null,
+    "wf_test_days": 20,
+    "min_trades_to_select": 30,
+    "seed": 7,
+    "param_grid": {"or_minutes": [15, 30], "target_r": [1.0, 1.5, 2.0]}
+  }
+}
