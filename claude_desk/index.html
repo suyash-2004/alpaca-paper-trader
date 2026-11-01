@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Trading Desk</title>
+<style>
+:root{--bg:#fff;--fg:#1a1a1a;--mut:#6b7280;--card:#f3f4f6;--bd:#e5e7eb;--up:#15803d;--dn:#b91c1c}
+@media(prefers-color-scheme:dark){:root{--bg:#0f1115;--fg:#e5e7eb;--mut:#9ca3af;--card:#1a1d24;--bd:#2a2e38;--up:#4ade80;--dn:#f87171}}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--fg);font:15px/1.5 system-ui,sans-serif}
+.wrap{display:grid;grid-template-columns:1fr 280px;gap:16px;max-width:1000px;margin:0 auto;padding:16px}
+@media(max-width:760px){.wrap{grid-template-columns:1fr}}
+h1{font-size:18px;margin:0 0 12px}.side{background:var(--card);border:1px solid var(--bd);border-radius:10px;padding:14px;height:max-content}
+.msg{background:var(--card);border:1px solid var(--bd);border-radius:10px;padding:10px 14px;margin-bottom:10px}
+.msg b{font-size:12px;letter-spacing:.05em}.msg time{float:right;color:var(--mut);font-size:12px}
+.msg pre{white-space:pre-wrap;margin:6px 0 0;font:inherit}
+.SYSTEM{border-left:4px solid #d97706}.SKEPTIC{border-left:4px solid var(--dn)}.LEAD{border-left:4px solid var(--up)}
+.big{font-size:24px;font-weight:600}.up{color:var(--up)}.dn{color:var(--dn)}.mut{color:var(--mut);font-size:13px}
+table{width:100%;border-collapse:collapse;font-size:13px}td{padding:3px 0}
+</style></head><body><div class="wrap">
+<main><h1>Desk chat</h1><div id="log"><p class="mut">No messages yet. Run /desk in Claude Code.</p></div></main>
+<aside class="side"><div class="mut">Paper account</div><div class="big" id="eq">–</div><div id="pl"></div>
+<div class="mut" id="mode"></div><h1 style="margin-top:16px">Positions</h1><table id="pos"></table></aside>
+</div><script>
+const $=id=>document.getElementById(id),esc=s=>s.replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
+async function tick(){
+ try{const l=await (await fetch('/log')).json();
+  if(l.length)$('log').innerHTML=l.slice().reverse().map(m=>`<div class="msg ${m.name.split(' ')[0].split('/')[0]}"><b>${esc(m.name)}</b><time>${m.t.replace('T',' ')}</time><pre>${esc(m.text)}</pre></div>`).join('')}catch(e){}
+ try{const a=await (await fetch('/account')).json();if(a.error){$('eq').textContent='n/a';$('mode').textContent=a.error;return}
+  $('eq').textContent='$'+(+a.equity).toLocaleString(undefined,{maximumFractionDigits:0});
+  $('pl').innerHTML=`<span class="${a.pl_today>=0?'up':'dn'}">${a.pl_today>=0?'+':''}${a.pl_today.toFixed(2)} today</span>`;
+  $('mode').textContent=a.auto_paper?'AUTO_PAPER on: orders placed':'AUTO_PAPER off: ideas only';
+  $('pos').innerHTML=a.positions.length?a.positions.map(p=>`<tr><td>${p.symbol} ×${p.qty}</td><td class="${p.unrealized_pl>=0?'up':'dn'}" style="text-align:right">${(+p.unrealized_pl).toFixed(2)}</td></tr>`).join(''):'<tr><td class="mut">none</td></tr>'}catch(e){}
+}
+tick();setInterval(tick,5000);
+</script></body></html>
