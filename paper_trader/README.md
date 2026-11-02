@@ -13,7 +13,7 @@ simulated orders to Alpaca's paper account by itself.
 | rule | where |
 | --- | --- |
 | Trading endpoint is the constant `https://paper-api.alpaca.markets`; not configurable; no live URL, live credential variable or live switch exists. Unknown config keys (`endpoint`, `live`, `margin`, …) are rejected. | `guards.py`, `config.py` |
-| Credentials only from `ALPACA_PAPER_API_KEY` / `ALPACA_PAPER_SECRET_KEY`: real env vars, else the git-ignored `paper_trader/.env` (your choice; plain text on disk). Never printed or logged (redacted incl. substring match), never committed. | `guards.py`, `audit.py` |
+| Credentials only from `ALPACA_KEY` / `ALPACA_SECRET` (the older `ALPACA_PAPER_API_KEY` / `ALPACA_PAPER_SECRET_KEY` still work): real env vars, else the git-ignored `paper_trader/.env` (your choice; plain text on disk). Never printed or logged (redacted incl. substring match), never committed. | `guards.py`, `audit.py` |
 | Fail closed at startup: key id must start `PK`; any `APCA_API_BASE_URL`-style env var pointing elsewhere refuses; account number must look like a paper account (`PA…`), status `ACTIVE`, USD, not blocked; SDK client base URL is asserted equal to the paper URL. | `guards.py`, `alpaca_adapter.py` |
 | Long-only US stocks, no options/crypto/margin/leverage. `paper-run` **sets** `no_shorting=true`, `max_margin_multiplier="1"`, `max_options_trading_level=0` on the paper account and **re-reads to verify** (also account `multiplier==1`, `shorting_enabled==False`). If anything can't be verified, it refuses to start. `dry-run`/`verify` only read. | `guards.ensure_restrictions` |
 | Sizing uses **only** a settled-cash ledger: `min(cash − fees − pending transfers out − unsettled sale proceeds − cash reserved by open buy orders, capital_usd − open cost − reserved)`. Alpaca `buying_power`, `regt_buying_power`, `daytrading_buying_power` are never read. T+1 settlement from Alpaca's trading calendar. Unknown cash / calendar / truncated order history → no buys. | `ledger.py` |
@@ -62,7 +62,7 @@ copy config.template.json config.json                           # config.json is
 
 Credentials: create **paper** API keys in the Alpaca dashboard (paper view), then either
 `copy .env.example .env` and fill in the two values in your editor (`.env` is git-ignored; plain text on disk), or set
-`ALPACA_PAPER_API_KEY` / `ALPACA_PAPER_SECRET_KEY` as Windows user environment variables (env vars win over `.env`).
+`ALPACA_KEY` / `ALPACA_SECRET` (the older `ALPACA_PAPER_API_KEY` / `ALPACA_PAPER_SECRET_KEY` still work) as Windows user environment variables (env vars win over `.env`).
 Never paste them into chat. A `.env` containing a non-paper URL variable or a non-`PK` key makes the runner refuse.
 
 ### Values you must provide in `config.json` (all start as `null`; nothing is assumed)
