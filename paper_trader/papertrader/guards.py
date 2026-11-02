@@ -8,8 +8,11 @@ import re
 from decimal import Decimal, InvalidOperation
 
 PAPER_TRADING_URL = "https://paper-api.alpaca.markets"  # hard-coded, never configurable
-ENV_KEY = "ALPACA_PAPER_API_KEY"
-ENV_SECRET = "ALPACA_PAPER_SECRET_KEY"
+ENV_KEY = "ALPACA_KEY"  # same names as the cloud environment
+ENV_SECRET = "ALPACA_SECRET"
+# Older names, still accepted so existing local setups keep working.
+LEGACY_ENV_KEY = "ALPACA_PAPER_API_KEY"
+LEGACY_ENV_SECRET = "ALPACA_PAPER_SECRET_KEY"
 # Any of these set to something other than the paper URL means the environment is
 # pointing at another endpoint; refuse rather than guess which one the SDK would use.
 _URL_ENVS = ("APCA_API_BASE_URL", "ALPACA_API_BASE_URL", "ALPACA_TRADING_URL")
@@ -46,7 +49,7 @@ def parse_dotenv(path) -> dict:
                 continue
             k, v = line.split("=", 1)
             k, v = k.strip(), v.strip().strip('"').strip("'")
-            if k in (ENV_KEY, ENV_SECRET, *_URL_ENVS):
+            if k in (ENV_KEY, ENV_SECRET, LEGACY_ENV_KEY, LEGACY_ENV_SECRET, *_URL_ENVS):
                 out[k] = v
     return out
 
@@ -59,7 +62,8 @@ def load_credentials(env=None, dotenv_path=None):
         val = (env.get(name) or "").strip()
         if val and normalize_url(val) != PAPER_TRADING_URL:
             raise SafetyError("environment variable %s points at a non-paper endpoint; unset it" % name)
-    key, secret = (env.get(ENV_KEY) or "").strip(), (env.get(ENV_SECRET) or "").strip()
+    key = (env.get(ENV_KEY) or env.get(LEGACY_ENV_KEY) or "").strip()
+    secret = (env.get(ENV_SECRET) or env.get(LEGACY_ENV_SECRET) or "").strip()
     if not key or not secret:
         raise SafetyError("set %s and %s (Alpaca PAPER keys) in your environment" % (ENV_KEY, ENV_SECRET))
     if not _PAPER_KEY_RE.match(key):
